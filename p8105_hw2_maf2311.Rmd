@@ -1,0 +1,36 @@
+---
+title: "p8105_hw2_maf2311"
+author: "Mackenzie Frost"
+date: "Octobr 4 2022"
+output: github_document
+---
+
+```{r setup, include = FALSE}
+library(tidyverse)
+library(readxl)
+```
+
+# Problem 1
+
+```{r}
+nyc_subway = read_csv(file = "./NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>% 
+  janitor::clean_names() %>% 
+  select(
+    line, station_name, station_latitude, station_longitude, starts_with("route"), entry, exit_only,   
+    vending, entrance_type, ada
+  ) %>% 
+  mutate(entry = ifelse(entry == "YES", TRUE, FALSE))
+```
+
+NYC Transit Entry/Exit Dataset Description: 
+
+* The NYC Transit Entry/Exit Dataset dataset has the following variables: `r names(nyc_subway)`.
+* To clean the data, 
+* The NYC Transit Entry/Exit Dataset dataset has `r nrow(nyc_subway)` rows and `r ncol(nyc_subway)` columns.
+
+
+
+
+
+
+
