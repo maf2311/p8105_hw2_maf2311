@@ -89,6 +89,52 @@ The total number of sports balls collected by Mr. Trash Wheel in 2020: `r balls`
 
 # Problem 3
 
+```{r}
+pols_month = 
+  read_csv(file = "./fivethirtyeight_datasets/pols-month.csv") %>%
+  separate(col=mon, into=c('year', 'month', 'day'), sep='-') %>%
+  mutate(month = month.abb[as.numeric(month)]) %>%
+  mutate(president = ifelse(prez_gop == 0, "dem", "gop")) %>%
+  select(-day, -prez_gop, -prez_dem)
+
+snp = 
+  read_csv(file = "./fivethirtyeight_datasets/snp.csv") %>%
+  separate(col=date, into=c('month', 'day', 'year'), sep='/') %>%
+  mutate(month = month.abb[as.numeric(month)]) %>%
+  mutate(year = ifelse(year<23, paste("20",year, sep = ""), paste("19",year, sep = ""))) %>%
+  select(year, month, close, -day)
+
+unemp = 
+  read_csv(file = "./fivethirtyeight_datasets/unemployment.csv") %>%
+  rename(year = Year) %>%
+  pivot_longer(
+    Jan:Dec,
+    names_to = "month", 
+    values_to = "percent")
+
+result = 
+  full_join(pols_month, snp, by = c("year", "month")) %>%
+  mutate(year = as.numeric(year))
+
+final = full_join(result, unemp, by = c("year", "month"))
+```
+
+### Pols_month Dataset
+
+This dataset contained information on the political breakdown of the United States Government from `r min(pols_month$year)` to `r max(pols_month$year)`. It had `r nrow(pols_month)` rows and `r ncol(pols_month)` columns, and the variables included:  `r names(pols_month)`
+
+### SNP Dataset
+
+This dataset contained information on monthly closing values of the Standard & Poor’s stock market index (S&P) from `r min(snp$year)` to `r max(snp$year)`. It had `r nrow(snp)` rows and `r ncol(snp)` columns, and the variables included:  `r names(snp)`
+
+### Unemployment Dataset
+
+This dataset contained information on monthly unemployment rates (as percentages) from `r min(unemp$year)` to `r max(unemp$year)`. It had `r nrow(unemp)` rows and `r ncol(unemp)` columns, and the variables included:  `r names(unemp)`
+
+### Final Dataset
+
+This dataset contains all information from the 3 datasets mentioned above, from `r min(final$year)` to `r max(final$year)`. The data entries are joined by the 'year' and 'month' variables, and there are `r ncol(final)` columns and `r nrow(final)` rows.
+
 
 
 
