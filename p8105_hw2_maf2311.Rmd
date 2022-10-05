@@ -12,21 +12,82 @@ library(readxl)
 
 # Problem 1
 
-```{r}
+```{r q1, include = FALSE}
 nyc_subway = read_csv(file = "./NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>% 
   janitor::clean_names() %>% 
   select(
-    line, station_name, station_latitude, station_longitude, starts_with("route"), entry, exit_only,   
-    vending, entrance_type, ada
+    line, station_name, station_latitude, station_longitude, starts_with("route"), entry,
+    exit_only, vending, entrance_type, ada
   ) %>% 
   mutate(entry = ifelse(entry == "YES", TRUE, FALSE))
 ```
 
 NYC Transit Entry/Exit Dataset Description: 
 
-* The NYC Transit Entry/Exit Dataset dataset has the following variables: `r names(nyc_subway)`.
-* To clean the data, 
-* The NYC Transit Entry/Exit Dataset dataset has `r nrow(nyc_subway)` rows and `r ncol(nyc_subway)` columns.
+The NYC Transit Entry/Exit Dataset has the following variables: `r names(nyc_subway)`. To clean the data, I first imported the csv file, made the names more uniform with the janitor package, and only kept the variables of interest. The binary variable 'entry' was changed to a logical variable using the mutate function. The NYC Transit Entry/Exit Dataset dataset has `r nrow(nyc_subway)` rows and `r ncol(nyc_subway)` columns. These data are tidier than when I first imported the dataset, however we can update the variable names (specifically the route variables) to make them more user friendly. 
+
+```{r}
+stn = 
+  nyc_subway %>% 
+  select(line, station_name) %>% 
+  distinct
+
+compliant = 
+  nyc_subway %>% 
+  filter(ada == TRUE) %>%
+  select(line, station_name) %>% 
+  distinct
+
+ent=
+  nyc_subway %>% 
+  filter(vending == "NO") %>% 
+  pull(entry) %>% 
+  mean
+```
+
+* There are `r nrow(stn)` distinct stations. 
+* There are `r nrow(compliant)` stations that are ADA compliant. 
+* The proportion f station entrances/exits without vending that allow entrance is `r ent`.
+
+# Problem 2
+
+```{r}
+mrTrashWheel = 
+  read_excel("./Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel", skip = 1, n_max = 547) %>%
+  janitor::clean_names() %>%
+  select(-x15, -x16) %>%
+  mutate(sports_balls = round(sports_balls, digits = 0)) %>%
+  mutate(sports_balls = as.integer(sports_balls)) %>%
+  mutate(mrORprof = 1)
+
+profTrashWheel = 
+  read_excel("./Trash Wheel Collection Data.xlsx", sheet = "Professor Trash Wheel", skip = 1, n_max = 94) %>%
+  janitor::clean_names() %>%
+  mutate(mrORprof = 2)
+
+trashwheel = 
+  merge(mrTrashWheel, profTrashWheel, all = TRUE)
+```
+
+The Trashwheel Dataset has the following variables: `r names(trashwheel)`. There are `r nrow(trashwheel)` observations. The variable 'mrORprof' distinguishes between Mr. Trash Wheel (1) and Professor Trash Wheel (2).
+
+```{r}
+filtered2 = 
+  trashwheel %>%
+  filter(mrORprof == 2)
+weight = sum(filtered2$weight_tons)
+
+filtered1 = 
+  trashwheel %>%
+  filter(mrORprof == 1 & year == "2020")
+balls = sum(filtered1$sports_balls)
+```
+
+The total weight of trash collected by Professor Trash Wheel: `r weight` tons
+
+The total number of sports balls collected by Mr. Trash Wheel in 2020: `r balls` sports balls
+
+# Problem 3
 
 
 
